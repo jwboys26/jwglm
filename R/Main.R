@@ -58,7 +58,8 @@
 
 
 
-jwglm = function(formula, data, beta0=FALSE, link="Logit", bBias=FALSE,
+
+jwglm = function(formula, data, beta0=FALSE, D=FALSE,  link="Logit", bBias=FALSE,
                  nIter=100, lr=0.01, crit=1e-3, bDisp=FALSE){
   
   cl <- match.call()
@@ -83,14 +84,26 @@ jwglm = function(formula, data, beta0=FALSE, link="Logit", bBias=FALSE,
   
   XX = t(X)%*%X
   A = sqrtmat(XX, -0.5)
-  D = X%*%A
   
-  if(beta0==FALSE){
-    Init_beta = rep(1, times=ncol(X))
-  }else{
-    Init_beta = beta0
+  
+  if(is.null(ncol(D))==TRUE){
+    
+    D = X%*%A
+    
   }
   
+  if(length(beta0)==1){
+    if(beta0==FALSE){
+      Init_beta = rep(1, times=ncol(X))
+      
+    }else{
+      Init_beta=beta0
+    }
+  }else{
+    
+    Init_beta = beta0
+    
+  }
   
   
   lst = Find_MDBeta(Init_beta, Y, X, D, strDistr=link, nIter=nIter, lr=lr, crit=crit,
