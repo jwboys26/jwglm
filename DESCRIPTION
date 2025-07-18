@@ -1,0 +1,15 @@
+Package: jwglm
+Type: Package
+Title: Binary regression estimation using an L2 type loss function 
+Version: 1.0
+Date: 2025-07-17
+Author: Jiwoong Kim <jwboys26 at gmail.com>
+Maintainer: Jiwoong Kim <jwboys26@gmail.com>
+Description: This package proposes a novel method to estimate parameters in a binary regression model whose link function is a logit, probit, or loglog function.
+License: GPL-2
+Encoding: UTF-8
+Imports: Rcpp (>= 1.0.10)
+LinkingTo: Rcpp, RcppArmadillo
+RoxygenNote: 7.3.2
+Depends: 
+    R (>= 2.10)
