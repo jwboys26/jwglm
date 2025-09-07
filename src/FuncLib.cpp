@@ -341,6 +341,81 @@ double GetLp(arma::vec Y, arma::mat X, arma::mat D, arma::vec beta, Rcpp::String
 }
 
 
+// [[Rcpp::export]]
+arma::vec Get_beta_only(arma::vec beta, arma::vec Y, arma::mat X, arma::mat D, 
+              Rcpp::String strDistr, int nIter=100, 
+              double lr=0.01, double crit=1e-3, bool bDisp=false){
+  
+  int p = X.n_cols;
+  arma::vec grad(p);
+  grad.zeros();
+  
+  arma::vec newbeta(p);
+  newbeta.zeros();
+  
+  arma::vec oldbeta(p);
+  oldbeta.zeros();
+  
+  arma::vec diffvec(p);
+  diffvec.zeros();
+  
+  
+  oldbeta = beta;
+  
+  double diff = 0;
+  
+  arma::vec pVec(p);
+  
+  int nFlag = 0;
+  double lossval=0;
+  
+  arma::vec LossVec(nIter);
+  
+  arma::vec Sn(p);
+  Sn.zeros();
+  
+  for(int iter=1;iter<=nIter;iter++){
+    
+    pVec = Get_pVec(X, oldbeta, strDistr);
+    Sn = GetSn(oldbeta, Y, X, D, pVec, strDistr);
+    
+    newbeta = oldbeta - lr*Sn; 
+    
+    
+    diffvec = newbeta-oldbeta;
+    diff = sqrt(sum(diffvec%diffvec));
+    
+    lossval = GetLp(Y, X, D, newbeta, strDistr);
+    LossVec[iter-1] = lossval;
+    
+    
+    if(diff<crit){
+      
+      LossVec = LossVec.subvec(0, iter-1);
+      nFlag = iter;
+      
+      break;
+      
+    }
+    oldbeta = newbeta;
+    nFlag = iter;
+    
+  }
+  
+  if( (nFlag==nIter) & (bDisp==true)){
+    
+    Rcout<< "The convergence of beta was not reached." << std::endl;
+  }
+  
+  arma::vec out = newbeta;
+
+  return out;
+  
+  
+}
+
+
+
 
 List Get_beta(arma::vec beta, arma::vec Y, arma::mat X, arma::mat D, 
                 Rcpp::String strDistr, int nIter=100, 
@@ -1057,7 +1132,7 @@ arma::vec Get_AVec(arma::mat X, arma::mat D, arma::vec beta, Rcpp::String strDis
 }
 
 
-
+// [[Rcpp::export]]
 arma::vec Get_bias(arma::mat X, arma::mat D, arma::vec beta, Rcpp::String strDistr="Logit"){
   
   
@@ -1099,15 +1174,15 @@ List Find_MDBeta(arma::vec beta0, arma::vec Y, arma::mat X, arma::mat D,
   
   List lst = Get_beta(beta0, Y, X, D, strDistr, nIter=nIter, lr=lr, crit=crit, bDisp=bDisp);
   
-  if(bBias==true){
+  //if(bBias==true){
     
-    arma::vec newbeta = lst[2];
-    arma::vec biasVec = Get_bias(X, D, newbeta, strDistr=strDistr);
+    //  arma::vec newbeta = lst[2];
+    //arma::vec biasVec = Get_bias(X, D, newbeta, strDistr=strDistr);
     
-    newbeta -= biasVec;
+    //newbeta -= biasVec;
     
-    lst[2] = newbeta;
-  }
+    //lst[2] = newbeta;
+  //}
 
 
   return lst;

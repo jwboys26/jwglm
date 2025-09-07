@@ -5,6 +5,14 @@ Fl <- function(x, strDistr = "Logit") {
     .Call(`_jwglm_Fl`, x, strDistr)
 }
 
+Get_beta_only <- function(beta, Y, X, D, strDistr, nIter = 100L, lr = 0.01, crit = 1e-3, bDisp = FALSE) {
+    .Call(`_jwglm_Get_beta_only`, beta, Y, X, D, strDistr, nIter, lr, crit, bDisp)
+}
+
+Get_bias <- function(X, D, beta, strDistr = "Logit") {
+    .Call(`_jwglm_Get_bias`, X, D, beta, strDistr)
+}
+
 Find_MDBeta <- function(beta0, Y, X, D, strDistr, nIter = 100L, lr = 0.01, crit = 1e-3, bBias = FALSE, bDisp = FALSE) {
     .Call(`_jwglm_Find_MDBeta`, beta0, Y, X, D, strDistr, nIter, lr, crit, bBias, bDisp)
 }

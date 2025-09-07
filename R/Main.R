@@ -4,9 +4,10 @@
 #' Performs L2-type optimization
 #'@param formula  a description of the model to be fitted.
 #'@param data a data frame that contains the response variable and predictors.
-#'@param beta0 an initial value for beta to be estimated. The default is Null.. 
+#'@param beta0 an initial value for beta to be estimated. The default is Null.
+#'@param D a matrix of weights. The default is Null. 
 #'@param link a link function. It should be Logit, Probit, or LogLog.
-#'@param bBias a logical value for the bias reduction. The default is FALSE
+#'@param bBias a logical value for the bias reduction. The default is FALSE.
 #'@param nIter the number of the iterations for the gradient decent method to find the MD estimator. The default value is 100.
 #'@param lr the learning rate for the gradient descent method. The default value is 0.01.
 #'@param crit the criterion used for exiting the iteration of the gradient descent method. The default value is 1e-3.
@@ -105,10 +106,21 @@ jwglm = function(formula, data, beta0=FALSE, D=FALSE,  link="Logit", bBias=FALSE
     
   }
   
+  D0 = X%*%A
+  Init_beta1 = Get_beta_only(Init_beta, Y, X, D0, link, nIter=nIter, lr=lr, crit=crit, bDisp=bDisp);
   
-  lst = Find_MDBeta(Init_beta, Y, X, D, strDistr=link, nIter=nIter, lr=lr, crit=crit,
+  
+  
+  lst = Find_MDBeta(Init_beta1, Y, X, D, strDistr=link, nIter=nIter, lr=lr, crit=crit,
                     bBias=bBias, bDisp=bDisp)
   
+  
+  if(bBias==TRUE){
+    
+    biasVec = Get_bias(X, D0, Init_beta1, strDistr=link);
+    beta_mde = lst[[3]] - biasVec
+    lst[[3]] = beta_mde
+  }
   
   dimm = dim(X)
   n=dimm[1]
