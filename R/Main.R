@@ -23,6 +23,8 @@
 #'
 #'\item{LossVec}{ a vector of values of the loss function at the estimator over the iterations.}
 #'
+#'#'\item{Variance}{the asymptotic variance of the MD estimator}
+#'
 #'\item{fitted_values}{ a vector of fitted values obtained using the link function and the MD estimator.}
 #'
 #'\item{residual}{ a vector of residuals, which is equal to the response substracted from fitted_values.}
@@ -66,9 +68,7 @@ jwglm = function(formula, data, beta0=FALSE, D=FALSE,  link="Logit", bBias=FALSE
   cl <- match.call()
   
   mf <- match.call(expand.dots = FALSE)
-  
-  
-  m <- match(c("formula", "data"),      names(mf), 0L)
+  m <- match(c("formula", "data"),  names(mf), 0L)
   
   mf <- mf[c(1L, m)]
   mf$drop.unused.levels <- TRUE
@@ -80,18 +80,12 @@ jwglm = function(formula, data, beta0=FALSE, D=FALSE,  link="Logit", bBias=FALSE
   mt <- attr(mf, "terms") # allow model.frame to update it
   Y <- model.response(mf, "numeric")
   
-  
   X <- model.matrix(mt, mf)
   
   XX = t(X)%*%X
   A = sqrtmat(XX, -0.5)
   
-  
-  if(is.null(ncol(D))==TRUE){
-    
-    D = X%*%A
-    
-  }
+  n = length(Y)
   
   if(length(beta0)==1){
     if(beta0==FALSE){
@@ -110,6 +104,30 @@ jwglm = function(formula, data, beta0=FALSE, D=FALSE,  link="Logit", bBias=FALSE
   Init_beta1 = Get_beta_only(Init_beta, Y, X, D0, link, nIter=nIter, lr=lr, crit=crit, bDisp=bDisp);
   
   
+  ##################
+  
+  Pn = matrix(0,n,n)
+  Ln = matrix(0,n,n)
+  for(k in 1:n){
+    
+    Xk = X[k,]
+    xkb = matrix(Xk, 1, p)%*% Init_beta1
+    Pn[k,k] = Fl(xkb)
+    Ln[k,k] = fl(xkb)
+  }
+  
+  if(is.null(ncol(D))==TRUE){
+    D = X%*%A
+  }else{
+    
+    XX = t(X)%*%Ln%*% solve(Pn)%*%Ln%*% X
+    A = sqrtmat(XX, -0.5)
+    D = X%*%A
+  }
+  
+  Gamma_n = A%*%t(X)%*%Ln%*%D
+  AVar = A%*% solve(t(Gamma_n))%*%t(D)%*%Pn%*%D%*%solve(Gamma_n)%*%A
+  ####################################
   
   lst = Find_MDBeta(Init_beta1, Y, X, D, strDistr=link, nIter=nIter, lr=lr, crit=crit,
                     bBias=bBias, bDisp=bDisp)
@@ -118,7 +136,9 @@ jwglm = function(formula, data, beta0=FALSE, D=FALSE,  link="Logit", bBias=FALSE
   if(bBias==TRUE){
     
     biasVec = Get_bias(X, D0, Init_beta1, strDistr=link);
-    beta_mde = lst[[3]] - biasVec
+    beta_mde0 = lst[[3]]
+    beta_mde = beta_mde0 - biasVec
+    beta_mde[1] = beta_mde0[1]
     lst[[3]] = beta_mde
   }
   
@@ -138,7 +158,8 @@ jwglm = function(formula, data, beta0=FALSE, D=FALSE,  link="Logit", bBias=FALSE
   residual = Y-fittedVec
   
   Final_list = list("Iter_Num" = lst[[1]], "diff"=lst[[2]], "beta_MDE" = lst[[3]], 
-                    "LossVec"=lst[[4]], "fitted_values" = fittedVec, "residual" = residual)
+                    "LossVec"=lst[[4]], "Variance" = AVar,
+                    "fitted_values" = fittedVec, "residual" = residual)
   
   return(Final_list)
 }
