@@ -39,12 +39,12 @@
 #'p=3
 #'
 #'###### Generate a data frame including a response and design matrix
-#'X = matrix(0, n,p)
-
-#'for(i in 1:p){
+#'X = matrix(1, n,p)
+#'
+#'for(i in 2:p){
 #'  X[,i] = runif(n, -2, 2)
 #'}
-
+#'colnames(X)=c("X1", "X2", "X3")
 #'pVec = 1/( 1+exp(-X%*%beta) )
 #'Y = rbinom(n, 1, pVec)
 
@@ -53,7 +53,7 @@
 #'DM = data.frame(DM)
 #'
 #'link = "Logit"
-#'lst = jwglm("Y~X1+X2+X3", data=DM, nIter=1000)
+#'lst = jwglm("Y~X1+X2+X3-1", data=DM, nIter=1000)
 #'
 #'@export
 #'@importFrom Rcpp evalCpp
@@ -112,8 +112,8 @@ jwglm = function(formula, data, beta0=FALSE, D=FALSE,  link="Logit", bBias=FALSE
     
     Xk = X[k,]
     xkb = matrix(Xk, 1, p)%*% Init_beta1
-    Pn[k,k] = Fl(xkb)
-    Ln[k,k] = fl(xkb)
+    Pn[k,k] = Fl(xkb, link)
+    Ln[k,k] = fl(xkb, link)
   }
   
   if(is.null(ncol(D))==TRUE){

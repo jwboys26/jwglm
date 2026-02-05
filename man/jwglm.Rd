@@ -49,6 +49,8 @@ A list of the following values:
 
 \item{LossVec}{ a vector of values of the loss function at the estimator over the iterations.}
 
+#'\item{Variance}{the asymptotic variance of the MD estimator}
+
 \item{fitted_values}{ a vector of fitted values obtained using the link function and the MD estimator.}
 
 \item{residual}{ a vector of residuals, which is equal to the response substracted from fitted_values.}
@@ -65,10 +67,12 @@ beta = c(1,-2,3.5)
 p=3
 
 ###### Generate a data frame including a response and design matrix
-X = matrix(0, n,p)
-for(i in 1:p){
+X = matrix(1, n,p)
+
+for(i in 2:p){
  X[,i] = runif(n, -2, 2)
 }
+colnames(X)=c("X1", "X2", "X3")
 pVec = 1/( 1+exp(-X\%*\%beta) )
 Y = rbinom(n, 1, pVec)
 DM = cbind(Y,X)
@@ -76,6 +80,6 @@ colnames(DM) = c("Y", paste("X", 1:p, sep=""))
 DM = data.frame(DM)
 
 link = "Logit"
-lst = jwglm("Y~X1+X2+X3", data=DM, nIter=1000)
+lst = jwglm("Y~X1+X2+X3-1", data=DM, nIter=1000)
 
 }

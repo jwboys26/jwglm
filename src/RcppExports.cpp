@@ -11,6 +11,18 @@ Rcpp::Rostream<true>&  Rcpp::Rcout = Rcpp::Rcpp_cout_get();
 Rcpp::Rostream<false>& Rcpp::Rcerr = Rcpp::Rcpp_cerr_get();
 #endif
 
+// fl
+double fl(double x, Rcpp::String strDistr);
+RcppExport SEXP _jwglm_fl(SEXP xSEXP, SEXP strDistrSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< double >::type x(xSEXP);
+    Rcpp::traits::input_parameter< Rcpp::String >::type strDistr(strDistrSEXP);
+    rcpp_result_gen = Rcpp::wrap(fl(x, strDistr));
+    return rcpp_result_gen;
+END_RCPP
+}
 // Fl
 double Fl(double x, Rcpp::String strDistr);
 RcppExport SEXP _jwglm_Fl(SEXP xSEXP, SEXP strDistrSEXP) {
@@ -78,6 +90,7 @@ END_RCPP
 }
 
 static const R_CallMethodDef CallEntries[] = {
+    {"_jwglm_fl", (DL_FUNC) &_jwglm_fl, 2},
     {"_jwglm_Fl", (DL_FUNC) &_jwglm_Fl, 2},
     {"_jwglm_Get_beta_only", (DL_FUNC) &_jwglm_Get_beta_only, 9},
     {"_jwglm_Get_bias", (DL_FUNC) &_jwglm_Get_bias, 4},

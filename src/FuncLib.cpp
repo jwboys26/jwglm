@@ -38,7 +38,7 @@ double normalCDF(double value){
 }
 
 
-
+//[[Rcpp::export]]
 double fl(double x, Rcpp::String strDistr="Logit"){
   
   double out = 0;
@@ -48,6 +48,9 @@ double fl(double x, Rcpp::String strDistr="Logit"){
     out = exp(-pow(x,2)/2)/M_sqrt2pi;
   }else if(strDistr=="LogLog"){
     out = ex*exp(-ex);
+  }else if(strDistr=="Cauchit"){
+    out = 1/( pi*(1+pow(x,2)));
+    
   }else{
     
     out = exp(-x)/pow( (1+exp(-x)), 2 );
@@ -69,6 +72,10 @@ double fl_dot(double x, Rcpp::String strDistr="Logit"){
     out = -x*exp(-pow(x,2)/2)/M_sqrt2pi;
   }else if(strDistr=="LogLog"){
     out = ex*exp(-ex)*(1-ex);
+  }else if(strDistr=="Cauchit"){
+    
+    out = -(2*x)/( pi* pow( (1+pow(x,2)),2  ) );
+  
   }else{
     
     out = -emx *(1-emx)/pow( (1+emx),3 ) ;
@@ -89,6 +96,8 @@ double fl_2dot(double x, Rcpp::String strDistr="Logit"){
     out = (pow(x,2)-1)*exp(-pow(x,2)/2)/M_sqrt2pi;
   }else if(strDistr=="LogLog"){
     out = ex*exp(-ex)*(1-3*ex+exp(2*x));
+  }else if(strDistr=="Cauchit"){
+    out = 2*( 3*pow(x,2) -1 )/( pi* pow( (1+pow(x,2)),3  ) );
   }else{
     
     out = -emx2 *(4-ex-emx)/pow( (1+emx),4 ) ;
@@ -109,6 +118,8 @@ double Fl(double x, Rcpp::String strDistr="Logit"){
     out = normalCDF(x);
   }else if(strDistr=="LogLog"){
     out = 1-exp(-ex);
+  }else if(strDistr=="Cauchit"){
+    out = 0.5+atan(x)/pi;
   }else{
     
     out = 1/ ( 1+exp(-x) );
