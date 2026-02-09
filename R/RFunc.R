@@ -19,6 +19,47 @@ sqrtmat<-function(MAT, EXP, tol=NULL){
   return(res)
 }
 
+
+#' Data generating process
+#'
+#' Generate a data frame including a binary response and design matrix
+#'@param beta  a binary regression parameter vector.
+#'@param n a number of rows of the design matrix X 
+#'@param p a number of columns of the design matrix X 
+#'@param bOut a logical value for generating outliers in the design matrix X. Default is FALSE.
+
+#'@return A list of the following values:
+#'\describe{
+#'\item{DM}{ a data frame that includes the binary response Y and design matrix X}
+#'
+#'\item{Y}{the binary response Y}
+#'
+#'\item{X}{the design matrix X}
+#'
+#'}
+#'
+#'@examples
+#'####################
+
+#'n=20
+#'beta = c(1,-2,3.5)
+#'p=3
+#'
+#'###### Generate a data frame including a response and design matrix
+#'
+#'lst = DGP(beta, n, p, bOut=FALSE)
+#'
+#'DM = lst$DM    ### a data frame
+#'Y = lst$Y      ### a binary response  
+#'X = lst$X      ### a design matrix
+#'
+#'link = "Logit"
+#'lst = jwglm("Y~Intercept+X1+X2-1", data=DM, nIter=1000)
+#'
+#'@export
+#'@seealso jwglm()
+
+
 DGP = function(beta, n, p, bOut=FALSE){
   
   p = length(beta)
@@ -61,21 +102,22 @@ DGP = function(beta, n, p, bOut=FALSE){
     Y[(n-(n2-1)):n] = Y2
   }
   
-  #DM = data.frame(Y=Y, Intercept=X[,1], X1=X[,2], X2=X[,3])  
-  #DM = data.frame("Y"=Y, "Intercept"=X[,1], "X1"=X[,2], "X2"=X[,3])
+  colnames(X) = c("Intercept", paste("X", 1:(p-1), sep=""))
   
-  tmpstr = "DM = data.frame(Y=Y, Intercept=X[,1]"
+  DM = data.frame("Y"=Y, X)
   
-  for(i in 2:p){
-    
-    tmpstr=paste0(tmpstr, ", X", (i-1), "=X[,", i, "]" )
-    
-    if(i==p){
-      tmpstr=paste0(tmpstr, ")" )
-    }
-  }
-  eval(parse(text=tmpstr))
-  
+  # tmpstr = "DM = data.frame(Y=Y, Intercept=X[,1]"
+  # 
+  # for(i in 2:p){
+  #   
+  #   tmpstr=paste0(tmpstr, ", X", (i-1), "=X[,", i, "]" )
+  #   
+  #   if(i==p){
+  #     tmpstr=paste0(tmpstr, ")" )
+  #   }
+  # }
+  # eval(parse(text=tmpstr))
+  # 
   lst = list(DM=DM, Y=Y, X=X)
   
   return(lst)  
