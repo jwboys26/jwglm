@@ -352,6 +352,13 @@ double GetLp(arma::vec Y, arma::mat X, arma::mat D, arma::vec beta, Rcpp::String
 }
 
 
+
+
+
+
+
+
+
 // [[Rcpp::export]]
 arma::vec Get_beta_only(arma::vec beta, arma::vec Y, arma::mat X, arma::mat D, 
               Rcpp::String strDistr, int nIter=100, 
@@ -427,7 +434,7 @@ arma::vec Get_beta_only(arma::vec beta, arma::vec Y, arma::mat X, arma::mat D,
 
 
 
-
+// [[Rcpp::export]]
 List Get_beta(arma::vec beta, arma::vec Y, arma::mat X, arma::mat D, 
                 Rcpp::String strDistr, int nIter=100, 
                 double lr=0.01, double crit=1e-3, bool bDisp=false){
@@ -563,8 +570,6 @@ arma::mat Get_Wn(arma::mat X, arma::mat D, arma::vec beta, Rcpp::String strDistr
 
 
 
-
-
 arma::vec Get_d(arma::mat X, arma::mat D, arma::vec beta, Rcpp::String strDistr="Logit"){
   
   int n = X.n_rows;
@@ -637,7 +642,7 @@ arma::vec Get_d(arma::mat X, arma::mat D, arma::vec beta, Rcpp::String strDistr=
     }
   }
   
-
+  
   
   arma::vec P2tilde(pow(n,2));
   P2tilde.zeros();
@@ -753,7 +758,7 @@ double Get_AVec_r(arma::mat X, arma::mat D, arma::vec beta, int r, Rcpp::String 
     eidx = sidx+n-1;
     
     Xtilde.submat(sidx-1, i-1, eidx-1, i-1) = X.col(i-1);
-  
+    
   }
   
   arma::mat XLX = Xtilde.t()*LP2L_Tilde*Xtilde;
@@ -882,7 +887,7 @@ double Get_AVec_r(arma::mat X, arma::mat D, arma::vec beta, int r, Rcpp::String 
     
   }
   
-
+  
   double out = c11+c12+c2+c3;
   
   return out;
@@ -1133,11 +1138,8 @@ arma::vec Get_AVec(arma::mat X, arma::mat D, arma::vec beta, Rcpp::String strDis
   }
   
   
-
+  
   return AVec;
-  
-  
-  
   
   
 }

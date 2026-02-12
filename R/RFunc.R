@@ -1,3 +1,69 @@
+GetTrueFalse = function(GroundVec, PredVec){
+  
+  nLen = length(GroundVec)
+  
+  TPIndex = which((GroundVec==1)&(PredVec==1))
+  nTP = length(TPIndex)
+  
+  FPIndex = which((GroundVec==0)&(PredVec==1))
+  nFP = length(FPIndex)
+  
+  FNIndex= which((GroundVec==1)&(PredVec==0))
+  nFN = length(FNIndex)
+  
+  TNIndex= which((GroundVec==0)&(PredVec==0))
+  nTN = length(TNIndex)
+  
+  ans = c(nTP, nFP, nFN, nTN)
+  return(ans)
+  
+}
+
+
+Get_Measure = function(ConfusionVec){
+  
+  nTP = ConfusionVec[1]
+  nFP = ConfusionVec[2]
+  nFN = ConfusionVec[3]
+  nTN = ConfusionVec[4]
+  
+  nP = nTP+nFN
+  nN = nFP+nTN
+  
+  Sensitivity = nTP/(nTP+nFN)
+  Precision = nTP/(nTP+nFP)
+  
+  F1 = 2*Sensitivity*Precision/(Sensitivity+Precision)
+  Accuracy = (nTP+nTN)/(nP+nN)
+  
+  Prevalence = nP/(nP+nN)
+  FDR = nFP/(nTP+nFP)
+  
+  TNR = nTN/nN
+  
+  BA = (Sensitivity+TNR)/2
+  
+  
+  lst = list(Sensitivity=Sensitivity, Precision=Precision, F1=F1, Accuracy=Accuracy,
+             Prevalence=Prevalence, FDR=FDR, TNR=TNR, BA=BA)
+  
+  return(lst)
+  
+  
+}
+
+
+
+Get_Brier = function(GroundVec, ProbVec){
+  
+  
+  diff = (GroundVec-ProbVec)^2
+  out = sum(diff)/length(diff)
+  return(sqrt(out))
+  
+}
+
+
 
 
 sqrtmat<-function(MAT, EXP, tol=NULL){

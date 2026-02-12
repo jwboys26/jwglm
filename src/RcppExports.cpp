@@ -54,6 +54,25 @@ BEGIN_RCPP
     return rcpp_result_gen;
 END_RCPP
 }
+// Get_beta
+List Get_beta(arma::vec beta, arma::vec Y, arma::mat X, arma::mat D, Rcpp::String strDistr, int nIter, double lr, double crit, bool bDisp);
+RcppExport SEXP _jwglm_Get_beta(SEXP betaSEXP, SEXP YSEXP, SEXP XSEXP, SEXP DSEXP, SEXP strDistrSEXP, SEXP nIterSEXP, SEXP lrSEXP, SEXP critSEXP, SEXP bDispSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< arma::vec >::type beta(betaSEXP);
+    Rcpp::traits::input_parameter< arma::vec >::type Y(YSEXP);
+    Rcpp::traits::input_parameter< arma::mat >::type X(XSEXP);
+    Rcpp::traits::input_parameter< arma::mat >::type D(DSEXP);
+    Rcpp::traits::input_parameter< Rcpp::String >::type strDistr(strDistrSEXP);
+    Rcpp::traits::input_parameter< int >::type nIter(nIterSEXP);
+    Rcpp::traits::input_parameter< double >::type lr(lrSEXP);
+    Rcpp::traits::input_parameter< double >::type crit(critSEXP);
+    Rcpp::traits::input_parameter< bool >::type bDisp(bDispSEXP);
+    rcpp_result_gen = Rcpp::wrap(Get_beta(beta, Y, X, D, strDistr, nIter, lr, crit, bDisp));
+    return rcpp_result_gen;
+END_RCPP
+}
 // Get_bias
 arma::vec Get_bias(arma::mat X, arma::mat D, arma::vec beta, Rcpp::String strDistr);
 RcppExport SEXP _jwglm_Get_bias(SEXP XSEXP, SEXP DSEXP, SEXP betaSEXP, SEXP strDistrSEXP) {
@@ -93,6 +112,7 @@ static const R_CallMethodDef CallEntries[] = {
     {"_jwglm_fl", (DL_FUNC) &_jwglm_fl, 2},
     {"_jwglm_Fl", (DL_FUNC) &_jwglm_Fl, 2},
     {"_jwglm_Get_beta_only", (DL_FUNC) &_jwglm_Get_beta_only, 9},
+    {"_jwglm_Get_beta", (DL_FUNC) &_jwglm_Get_beta, 9},
     {"_jwglm_Get_bias", (DL_FUNC) &_jwglm_Get_bias, 4},
     {"_jwglm_Find_MDBeta", (DL_FUNC) &_jwglm_Find_MDBeta, 10},
     {NULL, NULL, 0}
