@@ -420,11 +420,6 @@ arma::vec Get_beta_only(arma::vec beta, arma::vec Y, arma::mat X, arma::mat D,
     
   }
   
-  if( (nFlag==nIter) & (bDisp==true)){
-    
-    Rcout<< "The convergence of beta was not reached." << std::endl;
-  }
-  
   arma::vec out = newbeta;
 
   return out;
@@ -495,10 +490,6 @@ List Get_beta(arma::vec beta, arma::vec Y, arma::mat X, arma::mat D,
     
   }
   
-  if( (nFlag==nIter) & (bDisp==true)){
-  
-    Rcout<< "The convergence of beta was not reached." << std::endl;
-  }
   
   
   List lst(4);

@@ -7,10 +7,11 @@
 jwglm(
   formula,
   data,
-  beta0 = FALSE,
-  D = FALSE,
   link = "Logit",
+  D = NULL,
+  beta0 = c(1, 1),
   bBias = FALSE,
+  b1adjust = TRUE,
   nIter = 100,
   lr = 0.01,
   crit = 0.001,
@@ -22,13 +23,15 @@ jwglm(
 
 \item{data}{a data frame that contains the response variable and predictors.}
 
-\item{beta0}{an initial value for beta to be estimated. The default is Null.}
-
-\item{D}{a matrix of weights. The default is Null.}
-
 \item{link}{a link function. It should be Logit, Probit, or LogLog.}
 
+\item{D}{a weight matrix whose dimension is the same as that of the design matrix X.}
+
+\item{beta0}{an initial guess for beta.}
+
 \item{bBias}{a logical value for the bias reduction. The default is FALSE.}
+
+\item{b1adjust}{a logical value for the adjustment of b1. The default is TRUE.}
 
 \item{nIter}{the number of the iterations for the gradient decent method to find the MD estimator. The default value is 100.}
 

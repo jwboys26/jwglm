@@ -4,15 +4,15 @@
 #' Performs L2-type optimization
 #'@param formula  a description of the model to be fitted.
 #'@param data a data frame that contains the response variable and predictors.
-#'@param beta0 an initial value for beta to be estimated. The default is Null.
-#'@param D a matrix of weights. The default is Null. 
 #'@param link a link function. It should be Logit, Probit, or LogLog.
+#'@param D a weight matrix whose dimension is the same as that of the design matrix X.
+#'@param beta0 an initial guess for beta. 
 #'@param bBias a logical value for the bias reduction. The default is FALSE.
+#'@param b1adjust a logical value for the adjustment of b1. The default is TRUE.
 #'@param nIter the number of the iterations for the gradient decent method to find the MD estimator. The default value is 100.
 #'@param lr the learning rate for the gradient descent method. The default value is 0.01.
 #'@param crit the criterion used for exiting the iteration of the gradient descent method. The default value is 1e-3.
 #'@param bDisp a logical value for displaying the iteration.  The default value is FALSE.
-
 #'@return A list of the following values:
 #'\describe{
 #'\item{Iter_Num}{ the number of iterations taken to complete the estimation. If it is less than nIter, the convergence was made within the given iterations.}
@@ -62,8 +62,7 @@
 
 
 
-jwglm = function(formula, data, beta0=FALSE, D=FALSE,  link="Logit", bBias=FALSE,
-                 nIter=100, lr=0.01, crit=1e-3, bDisp=FALSE){
+jwglm = function(formula, data, link="Logit", D=NULL, beta0=c(1,1), bBias=FALSE, b1adjust=TRUE, nIter=100, lr=0.01, crit=1e-3, bDisp=FALSE){
   
   cl <- match.call()
   
@@ -82,32 +81,46 @@ jwglm = function(formula, data, beta0=FALSE, D=FALSE,  link="Logit", bBias=FALSE
   
   X <- model.matrix(mt, mf)
   
+  
   XX = t(X)%*%X
   A = sqrtmat(XX, -0.5)
   
   n = length(Y)
   
-  if(length(beta0)==1){
-    if(beta0==FALSE){
+  
+  if(length(beta0)==2){
+
+
+    if(ncol(X)!=2){
       Init_beta = rep(1, times=ncol(X))
-      
-    }else{
-      Init_beta=beta0
     }
+
   }else{
-    
-    Init_beta = beta0
-    
+
+    # if(beta0==FALSE){
+    #   Init_beta = rep(1, times=ncol(X))
+    #
+    # }else{
+    #   Init_beta=beta0
+    # }
+
+    Init_beta=beta0
   }
   
   D0 = X%*%A
+  
+  
   Init_beta1 = Get_beta_only(Init_beta, Y, X, D0, link, nIter=nIter, lr=lr, crit=crit, bDisp=bDisp);
+  
+
   
   
   ##################
   
   Pn = matrix(0,n,n)
   Ln = matrix(0,n,n)
+  
+  p = ncol(X)
   for(k in 1:n){
     
     Xk = X[k,]
@@ -116,13 +129,26 @@ jwglm = function(formula, data, beta0=FALSE, D=FALSE,  link="Logit", bBias=FALSE
     Ln[k,k] = fl(xkb, link)
   }
   
-  if(is.null(ncol(D))==TRUE){
-    D = X%*%A
-  }else{
+  
+  
+  if(link=="Logit"){
     
-    XX = t(X)%*%Ln%*% solve(Pn)%*%Ln%*% X
-    A = sqrtmat(XX, -0.5)
-    D = X%*%A
+    
+    if(is.null(D)==TRUE){
+      
+      XX = t(X)%*%Ln%*% solve(Pn)%*%Ln%*% X
+      A = sqrtmat(XX, -0.5)
+      
+      D = X%*%A
+      
+    }
+    
+  }else{
+    if(is.null(D)==TRUE){
+      
+      D=D0
+    }
+    
   }
   
   Gamma_n = A%*%t(X)%*%Ln%*%D
@@ -132,14 +158,29 @@ jwglm = function(formula, data, beta0=FALSE, D=FALSE,  link="Logit", bBias=FALSE
   lst = Find_MDBeta(Init_beta1, Y, X, D, strDistr=link, nIter=nIter, lr=lr, crit=crit,
                     bBias=bBias, bDisp=bDisp)
   
+  beta_mde0 = lst[[3]]
   
   if(bBias==TRUE){
     
-    biasVec = Get_bias(X, D0, Init_beta1, strDistr=link);
-    beta_mde0 = lst[[3]]
+    if(link=="Logit"){
+      biasVec = Get_bias(X, D0, Init_beta1, strDistr=link)
+      
+    }else{
+      biasVec = Get_bias(X, D, beta_mde0, strDistr=link)
+      
+    }
+    
     beta_mde = beta_mde0 - biasVec
-    beta_mde[1] = beta_mde0[1]
+    if(link=="Logit"){
+      if(b1adjust==TRUE){
+        beta_mde[1] = beta_mde0[1]
+      }
+      
+    }
+    
     lst[[3]] = beta_mde
+    
+    
   }
   
   dimm = dim(X)
